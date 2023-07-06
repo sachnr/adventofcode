@@ -1,0 +1,1 @@
+/home/sachnr/Documents/random/adventofcode/2022/rust/target/debug/aoc2022: /home/sachnr/Documents/random/adventofcode/2022/rust/src/day1.rs /home/sachnr/Documents/random/adventofcode/2022/rust/src/inputs/input1.txt /home/sachnr/Documents/random/adventofcode/2022/rust/src/main.rs
