@@ -22,10 +22,10 @@ impl Calories {
     }
 
     fn parse(&mut self, input: &str) -> Result<(), ParseIntError> {
-        let mut lines = input.split("\n\n");
-        while let Some(lines) = lines.next() {
+        let lines = input.split("\n\n");
+        for lines_split in lines {
             let mut total = 0;
-            for line in lines.lines() {
+            for line in lines_split.lines() {
                 total += line.parse::<i32>()?;
             }
             self.items.push(total);
