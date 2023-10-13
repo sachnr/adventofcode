@@ -31,8 +31,7 @@ func TestDayFour(t *testing.T) {
 			t.Errorf("Failed to parse the input.")
 		}
 
-		bingo.initScore()
-		got, err := bingo.Run()
+		got, err := bingo.Part1()
 
 		if err != nil {
 			t.Error(err)
@@ -44,4 +43,26 @@ func TestDayFour(t *testing.T) {
 			t.Errorf("\ngot: %d\nwant: %d", got, want)
 		}
 	})
+
+	t.Run("Part Two", func(t *testing.T) {
+		bingo := &Bingo{}
+		err := bingo.Parse(input)
+
+		if err != nil {
+			t.Errorf("Failed to parse the input.")
+		}
+
+		got := bingo.Part2()
+
+		if err != nil {
+			t.Error(err)
+		}
+
+		want := 1924
+
+		if got != want {
+			t.Errorf("\ngot: %d\nwant: %d", got, want)
+		}
+	})
+
 }
