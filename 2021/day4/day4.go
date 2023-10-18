@@ -180,6 +180,8 @@ func main() {
 	}
 
 	score, err := bingo.Part1()
+	score2 := bingo.Part2()
 
 	fmt.Printf("Part1: %d\n", score)
+	fmt.Printf("Part2: %d\n", score2)
 }
