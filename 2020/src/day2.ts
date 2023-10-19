@@ -24,6 +24,9 @@ class DayTwo {
             const min_max = parts[0].split("-");
             const min = parseInt(min_max[0]);
             const max = parseInt(min_max[1]);
+            if (isNaN(max) || isNaN(min)) {
+                throw new Error(`Unable to parse line: \n${line}`);
+            }
             const letter = parts[1].replace(":", "");
             const password = parts[2];
 
