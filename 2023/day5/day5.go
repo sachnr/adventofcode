@@ -5,30 +5,26 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 )
 
 //go:embed input.txt
 var input string
 
 type Entry struct {
-	destination int
-	source      int
-	raenge      int
+	from int
+	to   int
+	rng  int
 }
+
+var seeds []int
 
 type Data struct {
-	seeds                []int
-	seedToSoil           []Entry
-	soilToFertilize      []Entry
-	fertilizerToWater    []Entry
-	waterToLight         []Entry
-	lightToTemprature    []Entry
-	tempratureToHumidity []Entry
-	humidityToLocation   []Entry
+	name    string
+	entries []Entry
+	next    *Data
 }
 
-func stringToInt(inputs []string) ([]int, error) {
+func stringsToInt(inputs []string) ([]int, error) {
 	var output []int
 	for _, input := range inputs {
 		no, err := strconv.ParseInt(input, 10, 64)
@@ -41,107 +37,70 @@ func stringToInt(inputs []string) ([]int, error) {
 }
 
 func Parse(input string) (*Data, error) {
-	data := Data{}
-
 	input = strings.TrimSpace(input)
 	lines := strings.Split(input, "\n")
-	afterSeeds := lines[2:]
-	seedParts := strings.Split(lines[0], ":")
-	seedValues := strings.Fields(seedParts[1])
-	seeds, err := stringToInt(seedValues)
+
+	seedvals := strings.Fields(lines[0])[1:]
+	nos, err := stringsToInt(seedvals)
 	if err != nil {
 		return nil, err
 	}
-	data.seeds = seeds
+	seeds = append(seeds, nos...)
 
-	newEntry := true
-	name := ""
-	var entries []Entry
-	for i, line := range afterSeeds {
-		line = strings.TrimSpace(line)
-
-		if newEntry {
-			fields := strings.Fields(line)
-			name = fields[0]
-			newEntry = false
+	var curr *Data
+	curr = new(Data)
+	first := curr
+	maps := lines[2:]
+	for _, line := range maps {
+		if line == "" {
+			var next *Data
+			next = new(Data)
+			curr.next = next
+			curr = next
 			continue
 		}
-
-		if line == "" || i == len(afterSeeds)-1 {
-			switch name {
-			case "seed-to-soil":
-				data.seedToSoil = entries
-			case "soil-to-fertilizer":
-				data.soilToFertilize = entries
-			case "fertilizer-to-water":
-				data.fertilizerToWater = entries
-			case "water-to-light":
-				data.waterToLight = entries
-			case "light-to-temperature":
-				data.lightToTemprature = entries
-			case "temperature-to-humidity":
-				data.tempratureToHumidity = entries
-			case "humidity-to-location":
-				data.humidityToLocation = entries
-			}
-			newEntry = true
-			entries = make([]Entry, 0)
-			continue
-		}
-
 		fields := strings.Fields(line)
-		numbers, err := stringToInt(fields)
+		if len(fields) == 2 {
+			curr.name = fields[0]
+			continue
+		}
+		no, err := stringsToInt(fields)
 		if err != nil {
 			return nil, err
 		}
-		entries = append(entries, Entry{
-			destination: numbers[0],
-			source:      numbers[1],
-			raenge:      numbers[2],
-		})
+		curr.entries = append(curr.entries, Entry{to: no[0], from: no[1], rng: no[2]})
 	}
-	return &data, nil
+
+	return first, nil
 }
 
-func absInt(num int) int {
-	if num < 0 {
-		return -num
+func abs(value int) int {
+	if value < 0 {
+		return -value
 	}
-	return num
+	return value
 }
 
-func calculateLocation(entries []Entry, location int) int {
+func calculateDestination(entries []Entry, source int) int {
 	for _, entry := range entries {
-		upto := entry.source + entry.raenge
-		if location >= entry.source && location <= upto {
-			abs := absInt(location) - absInt(entry.source)
-			return entry.destination + abs
+		start := entry.from
+		end := entry.from + entry.rng
+		if source >= start && source <= end {
+			abs := abs(source - start)
+			return entry.to + abs
 		}
 	}
-	return location
+	return source
 }
 
 func PartOne(data *Data) int {
 	var locations []int
-	for _, seed := range data.seeds {
+	for _, seed := range seeds {
+		curr := data
 		location := seed
-		for i := 0; i < 7; i++ {
-			switch i {
-			case 0:
-				location = calculateLocation(data.seedToSoil, location)
-			case 1:
-				location = calculateLocation(data.soilToFertilize, location)
-			case 2:
-				location = calculateLocation(data.fertilizerToWater, location)
-			case 3:
-				location = calculateLocation(data.waterToLight, location)
-			case 4:
-				location = calculateLocation(data.lightToTemprature, location)
-			case 5:
-				location = calculateLocation(data.tempratureToHumidity, location)
-			case 6:
-				location = calculateLocation(data.humidityToLocation, location)
-			}
+		for curr != nil {
+			location = calculateDestination(curr.entries, location)
+			curr = curr.next
 		}
 		locations = append(locations, location)
 	}
@@ -152,20 +111,49 @@ func PartOne(data *Data) int {
 			min = location
 		}
 	}
+	return min
+}
 
+func PartTwo(data *Data) int {
+	var seedsRange [][2]int
+	for i := 0; i < len(seeds); i += 2 {
+		seedsRange = append(seedsRange, [2]int{seeds[0], seeds[1]})
+	}
+
+	var locations []int
+	for _, ranges := range seedsRange {
+		seedStart := ranges[0]
+		seedEnd := ranges[1] + seedStart
+		for i := seedStart; i < seedEnd; i++ {
+			curr := data
+			location := i
+			for curr != nil {
+				location = calculateDestination(curr.entries, location)
+				curr = curr.next
+			}
+			locations = append(locations, location)
+		}
+	}
+
+	min := locations[0]
+	for _, location := range locations {
+		if min > location {
+			min = location
+		}
+	}
 	return min
 }
 
 func main() {
 	fmt.Printf("Day Five:\n")
 
-	startTime := time.Now()
 	data, err := Parse(input)
 	if err != nil {
 		panic(fmt.Sprintf("Parsing Failed: %v", err.Error()))
 	}
 	one := PartOne(data)
-	endTime := time.Since(startTime)
 	fmt.Printf("\tPartOne: %v\n", one)
-	fmt.Printf("\ttime: %v\n", endTime)
+
+	two := PartTwo(data)
+	fmt.Printf("\tParttwo: %v\n", two)
 }

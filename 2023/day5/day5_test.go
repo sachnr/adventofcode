@@ -44,8 +44,14 @@ humidity-to-location map:
 	if err != nil {
 		t.Errorf("Parsing Failed: %v", err.Error())
 	}
+
 	t.Run("Part One", func(t *testing.T) {
 		location := PartOne(data)
 		helper.AssertEq(t, 35, location)
+	})
+
+	t.Run("Part Two", func(t *testing.T) {
+		got := PartTwo(data)
+		helper.AssertEq(t, 46, got)
 	})
 }
