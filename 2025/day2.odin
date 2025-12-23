@@ -9,9 +9,9 @@ import "core:strings"
 import "core:testing"
 
 
-TEST_INPUT :: "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124"
-TEST_OUTPUT1 :: 1227775554
-TEST_OUTPUT2 :: 4174379265
+TEST_INPUT_DAY2 :: "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124"
+TEST_OUTPUT_DAY2_PART1 :: 1227775554
+TEST_OUTPUT_DAY2_PART2 :: 4174379265
 
 
 Range :: struct {
@@ -116,21 +116,21 @@ day2_part2 :: proc(inputs: []Range) -> int {
 
 @(test)
 test_day2_part1 :: proc(t: ^testing.T) {
-	inputs := parse_input_day2(TEST_INPUT)
+	inputs := parse_input_day2(TEST_INPUT_DAY2)
 	defer delete(inputs)
 
 	total := day2_part1(inputs)
-	testing.expect(t, total == TEST_OUTPUT1)
+	testing.expect(t, total == TEST_OUTPUT_DAY2_PART1)
 }
 
 @(test)
 test_day2_part2 :: proc(t: ^testing.T) {
-	inputs := parse_input_day2(TEST_INPUT)
+	inputs := parse_input_day2(TEST_INPUT_DAY2)
 	defer delete(inputs)
 
 	total := day2_part2(inputs)
 	log.infof("output_day2: %d", total)
-	testing.expect(t, total == TEST_OUTPUT2)
+	testing.expect(t, total == TEST_OUTPUT_DAY2_PART2)
 }
 
 main :: proc() {
