@@ -1,7 +1,6 @@
 package main
 
 import "core:fmt"
-import "core:log"
 import vmem "core:mem/virtual"
 import "core:os"
 import "core:strings"
